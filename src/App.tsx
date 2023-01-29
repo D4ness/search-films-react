@@ -1,25 +1,17 @@
-import React, { useState } from 'react';
-import SearchInput from './components/Search/SearchInput';
-import SearchList from './components/Search/SearchList';
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import Search from './components/Search/Search';
+import FilmInfo from './components/FilmInfo/FilmInfo';
 
-export interface IQueryFilms {
-    id: number;
-    name: string;
-    year: number;
-}
 function App() {
-    const getFilmList = (responseList: Array<IQueryFilms> | []) => {
-        setFilmList(responseList);
-    };
-    const [filmList, setFilmList] = useState<Array<IQueryFilms> | []>([]);
+    // const getFilmID = () => {
+    //     return filmID
+    // }
     return (
-        <>
-            <section className='main'>
-                <h1>Список фильмов</h1>
-                <SearchInput getFilmList={getFilmList} />
-                <SearchList filmList={filmList} />
-            </section>
-        </>
+        <Routes>
+            <Route path='/' element={<Search />} />
+            <Route path='/film' element={<FilmInfo filmID={123} />} />
+        </Routes>
     );
 }
 
