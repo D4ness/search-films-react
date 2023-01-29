@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
-import { IQueryFilms } from '../../App';
+import React, { useEffect, useState } from 'react';
+import { IQueryFilms } from './Search';
+import useDebounce, { myToken } from './searchFuncs';
+
 interface ISearchInput {
     getFilmList: (responseList: Array<IQueryFilms> | []) => void;
 }
 
 const SearchInput: React.FC<ISearchInput> = ({ getFilmList }: ISearchInput) => {
     const [filmQuery, setFilmQuery] = useState('');
-    const myToken = '5X1TPKV-8REM72J-QF2QXG9-F4EZ2Q6';
+    const [isSearching, setIsSearching] = useState(false);
     const searchFilms = (value: string) => {
-        setFilmQuery(value);
+        console.log('srchFlms');
+        // setFilmQuery(value);
         const preparedValue: string = value.trim().toLowerCase();
 
-        // TODO Кнопка "С рейтингов больше х" - дополнительный фильтр
-        // TODO 2 поля с годами - фильтр от и до
         if (preparedValue.length) {
             fetch(
                 `https://api.kinopoisk.dev/movie?search=${preparedValue}` +
@@ -23,35 +24,38 @@ const SearchInput: React.FC<ISearchInput> = ({ getFilmList }: ISearchInput) => {
                     console.log(response.docs);
                     getFilmList(response.docs);
                 })
-                .catch((err) => console.error(err));
+                .catch((err) => {
+                    console.error(err);
+                    getFilmList([]);
+                });
         } else {
             getFilmList([]);
         }
-        // function debounce(callback: () => void) {
-        //     let timeout: number;
-        //     return function (...args: [number]) {
-        //         clearTimeout(timeout);
-        //         timeout = setTimeout(callback, 1000, ...args);
-        //     };
-        // }
-        // const debounceInput = debounce(searchFilms, 800);
-        //     clearSearchList();
-        //     if (value !== '') {
-        //         let url = `${urlStart}search/movie?${urlParams}&query=${query}`;
-        //         sendRequest(url).then((response) => {
-        //             showSearchList(response.results, query);
-        //         });
-        //     } else {
-        //         document.querySelector('.search__options').classList.add('hide');
-        //     }
+        setIsSearching(false);
     };
+    const debouncedFilmQuery = useDebounce(filmQuery, 1000);
+    useEffect(() => {
+        console.log('useEff');
+        if (debouncedFilmQuery) {
+            // Выставить состояние isSearching
+            setIsSearching(true);
+            // Сделать запрос к АПИ
+            searchFilms(debouncedFilmQuery);
+        } else {
+            searchFilms('');
+        }
+    }, [debouncedFilmQuery]);
+    // TODO Кнопка "С рейтингом больше х" - дополнительный фильтр
+    // TODO 2 поля с годами - фильтр от и до
+    // TODO Сделать состояние загрузки пока идёт запрос к API
     return (
         <div className='search'>
+            {isSearching && <div>Searching ...</div>}
             <input
                 className='search__input'
                 type='text'
                 value={filmQuery}
-                onChange={(event) => searchFilms(event.target.value)}
+                onChange={(event) => setFilmQuery(event.target.value)}
             />
         </div>
     );

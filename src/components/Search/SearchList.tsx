@@ -1,5 +1,5 @@
 import React from 'react';
-import { IQueryFilms } from '../../App';
+import { IQueryFilms } from './Search';
 
 interface ISearchList {
     filmList: Array<IQueryFilms> | [];
